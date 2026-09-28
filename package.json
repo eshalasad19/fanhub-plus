@@ -1,0 +1,13 @@
+{
+  "name": "fanhub-plus",
+  "version": "1.0.0",
+  "description": "Fan Hub Plus - Fandom Universe Platform",
+  "private": true,
+  "scripts": {
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "build:client": "npm run build --prefix client",
+    "start:server": "npm start --prefix server",
+    "seed:admin": "npm run seed:admin --prefix server"
+  }
+}
