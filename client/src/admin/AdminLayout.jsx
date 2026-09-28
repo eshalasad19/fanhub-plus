@@ -1,13 +1,13 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import {
   LayoutDashboard, Users, FolderOpen, FileText, UserCircle,
   BookOpen, Film, CalendarDays, ShoppingBag, Bot, FileCheck,
   MessageSquare, Tag, BarChart2, ChevronDown, ChevronRight, Rocket,
-  Search, Plus, Bell, X, Zap,
+  Search, Plus, Bell, X, Zap, LogOut, Globe, Shield, User,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import ThemeToggle from "../components/ThemeToggle.jsx";
-
+import { useAuth } from "../context/AuthContext.jsx";
 
 const SIDEBAR_SECTIONS = [
   {
@@ -51,7 +51,6 @@ const SIDEBAR_SECTIONS = [
   },
 ];
 
-
 const QUICK_CREATE = [
   { label: "New Event",       to: "/admin/events" },
   { label: "New Article",     to: "/admin/articles" },
@@ -61,7 +60,6 @@ const QUICK_CREATE = [
   { label: "New Release",     to: "/admin/releases" },
   { label: "New FAQ",         to: "/admin/chatbot" },
 ];
-
 
 const SEARCH_ROUTES = [
   { label: "Users",        to: "/admin/users" },
@@ -80,7 +78,6 @@ const SEARCH_ROUTES = [
   { label: "Dashboard",    to: "/admin" },
 ];
 
-
 const NavItem = ({ to, label, icon: Icon, end }) => (
   <NavLink
     to={to}
@@ -96,14 +93,14 @@ const NavItem = ({ to, label, icon: Icon, end }) => (
       textDecoration: "none",
       color: isActive ? "#fff" : "var(--text)",
       background: isActive
-        ? "linear-gradient(135deg,#8b5cf6,#6d28d9)"
+        ? "var(--gradient)"
         : "transparent",
-      transition: "background 0.15s, color 0.15s",
-      opacity: 1,
+      boxShadow: isActive ? "0 4px 14px rgba(219,39,119,0.3)" : "none",
+      transition: "all 0.2s ease",
     })}
     onMouseEnter={(e) => {
       if (!e.currentTarget.classList.contains("active")) {
-        e.currentTarget.style.background = "var(--bg)";
+        e.currentTarget.style.background = "var(--bg-soft)";
       }
     }}
     onMouseLeave={(e) => {
@@ -116,7 +113,6 @@ const NavItem = ({ to, label, icon: Icon, end }) => (
     {label}
   </NavLink>
 );
-
 
 const SidebarSection = ({ label, items, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -148,7 +144,6 @@ const SidebarSection = ({ label, items, defaultOpen = true }) => {
   );
 };
 
-
 const GlobalSearch = () => {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -176,7 +171,7 @@ const GlobalSearch = () => {
   };
 
   return (
-    <div ref={ref} style={{ position: "relative", flex: 1, maxWidth: 420 }}>
+    <div ref={ref} style={{ position: "relative", flex: 1, maxWidth: 380 }}>
       <div style={{
         display: "flex", alignItems: "center", gap: 8,
         padding: "8px 14px",
@@ -190,7 +185,7 @@ const GlobalSearch = () => {
           value={query}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
-          placeholder="Search users, articles, events…"
+          placeholder="Search admin sections…"
           style={{
             flex: 1, border: "none", background: "transparent",
             fontSize: 13, color: "var(--text)", outline: "none",
@@ -203,10 +198,6 @@ const GlobalSearch = () => {
             <X size={13} />
           </button>
         )}
-        <kbd style={{
-          padding: "2px 6px", borderRadius: 5, fontSize: 10.5, fontWeight: 700,
-          background: "var(--border)", color: "var(--text-muted)", flexShrink: 0,
-        }}>⌘K</kbd>
       </div>
 
       {open && results.length > 0 && (
@@ -214,7 +205,7 @@ const GlobalSearch = () => {
           position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 200,
           background: "var(--surface)", border: "1px solid var(--border)",
           borderRadius: 12, overflow: "hidden",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
         }}>
           {results.map((r) => (
             <button
@@ -228,10 +219,10 @@ const GlobalSearch = () => {
                 borderBottom: "1px solid var(--border)",
                 transition: "background 0.12s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg)"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-soft)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              <Search size={13} style={{ color: "#8b5cf6", flexShrink: 0 }} />
+              <Search size={13} style={{ color: "var(--primary)", flexShrink: 0 }} />
               {r.label}
             </button>
           ))}
@@ -240,7 +231,6 @@ const GlobalSearch = () => {
     </div>
   );
 };
-
 
 const QuickCreate = () => {
   const [open, setOpen] = useState(false);
@@ -261,11 +251,11 @@ const QuickCreate = () => {
         onClick={() => setOpen((o) => !o)}
         style={{
           display: "flex", alignItems: "center", gap: 7,
-          padding: "9px 18px", borderRadius: 12, border: "none",
-          background: "linear-gradient(135deg,#8b5cf6,#6d28d9)",
-          color: "#fff", fontSize: 13.5, fontWeight: 700, cursor: "pointer",
-          boxShadow: "0 4px 14px rgba(139,92,246,0.35)",
-          transition: "opacity 0.15s",
+          padding: "9px 16px", borderRadius: 12, border: "none",
+          background: "var(--gradient)",
+          color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer",
+          boxShadow: "0 4px 14px rgba(219,39,119,0.35)",
+          transition: "transform 0.15s, box-shadow 0.15s",
           whiteSpace: "nowrap",
         }}
       >
@@ -278,7 +268,7 @@ const QuickCreate = () => {
           position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 200, width: 200,
           background: "var(--surface)", border: "1px solid var(--border)",
           borderRadius: 12, overflow: "hidden",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
         }}>
           <p style={{
             margin: 0, padding: "10px 14px 6px",
@@ -296,10 +286,10 @@ const QuickCreate = () => {
                 display: "flex", alignItems: "center", gap: 8,
                 transition: "background 0.12s",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg)"}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-soft)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
             >
-              <Plus size={12} style={{ color: "#8b5cf6" }} />
+              <Plus size={12} style={{ color: "var(--primary)" }} />
               {item.label}
             </button>
           ))}
@@ -309,84 +299,222 @@ const QuickCreate = () => {
   );
 };
 
+const AdminLayout = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-const AdminLayout = () => (
-  <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg)" }}>
+  const handleAdminLogout = async () => {
+    if (window.confirm("Are you sure you want to log out of the Admin Panel?")) {
+      await logout();
+      navigate("/login");
+    }
+  };
 
-    <aside style={{
-      width: 230,
-      flexShrink: 0,
-      background: "var(--surface)",
-      borderRight: "1px solid var(--border)",
-      display: "flex",
-      flexDirection: "column",
-      position: "sticky",
-      top: 0,
-      height: "100vh",
-      overflowY: "auto",
-    }}>
-      <div style={{
-        padding: "20px 16px 18px",
-        borderBottom: "1px solid var(--border)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: "linear-gradient(135deg,#8b5cf6,#6d28d9)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <Zap size={17} style={{ color: "#fff" }} strokeWidth={2.5} />
-          </div>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: -0.3 }}>
-              Fan Hub <span className="gradient-text">Plus</span>
-            </div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>
-              Admin Panel
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <nav style={{ flex: 1, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 6, overflowY: "auto" }}>
-        {SIDEBAR_SECTIONS.map((section, i) => (
-          <SidebarSection key={i} {...section} />
-        ))}
-      </nav>
-
-      <div style={{ padding: "14px 16px", borderTop: "1px solid var(--border)" }}>
-        <ThemeToggle />
-      </div>
-    </aside>
-
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-
-      <header style={{
-        display: "flex", alignItems: "center", gap: 12,
-        padding: "12px 28px",
-        borderBottom: "1px solid var(--border)",
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg)" }}>
+      {/* Sidebar */}
+      <aside style={{
+        width: 240,
+        flexShrink: 0,
         background: "var(--surface)",
-        position: "sticky", top: 0, zIndex: 100,
+        borderRight: "1px solid var(--border)",
+        display: "flex",
+        flexDirection: "column",
+        position: "sticky",
+        top: 0,
+        height: "100vh",
+        overflowY: "auto",
+        zIndex: 110,
       }}>
-        <GlobalSearch />
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: "auto" }}>
-          <button style={{
-            width: 38, height: 38, borderRadius: 10,
-            border: "1px solid var(--border)", background: "var(--bg)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", color: "var(--text-muted)",
-          }}>
-            <Bell size={16} strokeWidth={2} />
-          </button>
-          <QuickCreate />
+        <div style={{
+          padding: "20px 16px 18px",
+          borderBottom: "1px solid var(--border)",
+        }}>
+          <Link to="/admin" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "inherit" }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: "var(--gradient)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 4px 14px rgba(219,39,119,0.4)",
+            }}>
+              <Zap size={18} style={{ color: "#fff" }} strokeWidth={2.5} />
+            </div>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 900, letterSpacing: -0.3 }}>
+                Fan Hub <span className="gradient-text">Plus</span>
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "var(--primary)", textTransform: "uppercase", letterSpacing: 1.2 }}>
+                Admin Dashboard
+              </div>
+            </div>
+          </Link>
         </div>
-      </header>
 
-      <main style={{ flex: 1, padding: "28px 32px", overflowY: "auto", minWidth: 0 }}>
-        <Outlet />
-      </main>
+        <nav style={{ flex: 1, padding: "14px 10px", display: "flex", flexDirection: "column", gap: 6, overflowY: "auto" }}>
+          {SIDEBAR_SECTIONS.map((section, i) => (
+            <SidebarSection key={i} {...section} />
+          ))}
+        </nav>
+
+        {/* Sidebar Footer with Public Site Link, Theme Toggle and Logout */}
+        <div style={{ padding: "14px 12px", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 10, background: "var(--bg-soft)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 4px" }}>
+            <Link
+              to="/dashboard"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--text-muted)",
+                textDecoration: "none",
+                transition: "color 0.2s",
+              }}
+              title="View Public User Site"
+            >
+              <Globe size={13} /> View Portal
+            </Link>
+            <ThemeToggle />
+          </div>
+
+          <button
+            onClick={handleAdminLogout}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              width: "100%",
+              padding: "9px 12px",
+              borderRadius: 10,
+              border: "1px solid rgba(239,68,68,0.25)",
+              background: "rgba(239,68,68,0.08)",
+              color: "#ef4444",
+              fontSize: 12.5,
+              fontWeight: 700,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(239,68,68,0.18)";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.45)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.25)";
+            }}
+          >
+            <LogOut size={14} /> Log Out Admin
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        {/* Admin Header */}
+        <header style={{
+          display: "flex", alignItems: "center", gap: 16,
+          padding: "14px 28px",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--surface)",
+          position: "sticky", top: 0, zIndex: 100,
+          backdropFilter: "blur(12px)",
+        }}>
+          <GlobalSearch />
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
+            <Link
+              to="/dashboard"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12.5,
+                fontWeight: 700,
+                color: "var(--text)",
+                padding: "8px 14px",
+                borderRadius: 10,
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                textDecoration: "none",
+              }}
+            >
+              <Globe size={14} color="var(--primary)" /> Public Portal
+            </Link>
+
+            <QuickCreate />
+
+            {/* Admin User Info Pill */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "5px 10px 5px 6px",
+              borderRadius: 999,
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+            }}>
+              <div style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: "var(--gradient)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                fontSize: 12,
+                fontWeight: 900,
+              }}>
+                {user?.name?.[0]?.toUpperCase() || "A"}
+              </div>
+              <span style={{ fontSize: 12.5, fontWeight: 700 }}>
+                {user?.name?.split(" ")[0] || "Admin"}
+              </span>
+              <span style={{
+                fontSize: 9.5,
+                fontWeight: 800,
+                padding: "2px 6px",
+                borderRadius: 999,
+                background: "rgba(219,39,119,0.15)",
+                color: "var(--primary)",
+                textTransform: "uppercase",
+              }}>
+                Root
+              </span>
+            </div>
+
+            {/* Prominent Header Logout Button */}
+            <button
+              onClick={handleAdminLogout}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 14px",
+                borderRadius: 10,
+                border: "1px solid rgba(239,68,68,0.25)",
+                background: "rgba(239,68,68,0.08)",
+                color: "#ef4444",
+                fontSize: 12.5,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              title="Log out of Admin Panel"
+            >
+              <LogOut size={14} /> Logout
+            </button>
+          </div>
+        </header>
+
+        <main style={{ flex: 1, padding: "28px 32px", overflowY: "auto", minWidth: 0 }}>
+          <Outlet />
+        </main>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default AdminLayout;

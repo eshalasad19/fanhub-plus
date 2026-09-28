@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Flame, Shield, Globe, Zap, Compass, Star, PlayCircle } from "lucide-react";
 import {
   FiCompass,
   FiUsers,
@@ -22,6 +22,8 @@ import {
   FiHelpCircle,
   FiArrowRight,
 } from "react-icons/fi";
+import LottieAnimation from "../components/LottieAnimation.jsx";
+import { heroCosmicLottie, sparklesLottie } from "../assets/lottieData.js";
 import "./Home.css";
 
 const CATEGORY_NAMES = ["Anime", "Gaming", "Movies", "TV Shows", "K-Pop", "Comics", "Manga", "Cosplay"];
@@ -57,7 +59,17 @@ const item = {
 const Home = () => {
   const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
   const [dbStatus, setDbStatus] = useState("checking");
+  const [activeWordIndex, setActiveWordIndex] = useState(0);
   const navigate = useNavigate();
+
+  const dynamicWords = ["Every Fandom.", "Epic Lore.", "Exclusive Merch.", "Live Communities."];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveWordIndex((prev) => (prev + 1) % dynamicWords.length);
+    }, 2400);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     axios
@@ -75,6 +87,7 @@ const Home = () => {
 
   return (
     <main className="fanhub-home">
+      {/* Background Video with Gradient Overlay */}
       <div className="video-background">
         <video autoPlay muted loop playsInline preload="auto">
           <source src="/videos/fandom-bg.mp4" type="video/mp4" />
@@ -83,6 +96,7 @@ const Home = () => {
 
       <div className="video-overlay"></div>
 
+      {/* Hero Section with Lottie Animation */}
       <section className="hero-section">
         <motion.div
           className="hero-content"
@@ -90,26 +104,51 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <motion.div
-            className="hero-badge"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <Sparkles size={13} style={{ marginRight: 6, display: "inline", verticalAlign: "middle" }} />
-            WELCOME TO FANHUB PLUS
-          </motion.div>
+          {/* Lottie Floating Badge */}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <motion.div
+              className="hero-badge"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+            >
+              <div style={{ width: 22, height: 22 }}>
+                <LottieAnimation animationData={sparklesLottie} loop={true} />
+              </div>
+              <span>WELCOME TO FANHUB PLUS</span>
+              <div style={{ width: 22, height: 22 }}>
+                <LottieAnimation animationData={sparklesLottie} loop={true} />
+              </div>
+            </motion.div>
+          </div>
 
+          {/* Animated Kinetic Title */}
           <h1>
-            One Hub.
+            One Universe.
             <br />
-            <span className="gradient-text">Every Fandom.</span>
+            <span className="gradient-text" key={activeWordIndex} style={{ display: "inline-block" }}>
+              <motion.span
+                initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.4 }}
+              >
+                {dynamicWords[activeWordIndex]}
+              </motion.span>
+            </span>
           </h1>
 
           <p className="hero-description">
-            Explore the worlds you love. Discover new stories, characters, games, music and communities — all in one
-            place.
+            Explore the worlds you love. Discover curated lore, characters, games, trailers, and collectible merchandise — all powered by our interactive fandom platform.
           </p>
+
+          {/* Center Lottie Interactive Portal */}
+          <div style={{ display: "flex", justifyContent: "center", margin: "18px 0 6px" }}>
+            <div style={{ width: 140, height: 140, filter: "drop-shadow(0 0 25px rgba(219,39,119,0.5))" }}>
+              <LottieAnimation animationData={heroCosmicLottie} loop={true} />
+            </div>
+          </div>
 
           <div className="hero-buttons">
             <button
@@ -128,7 +167,7 @@ const Home = () => {
                 document.getElementById("fanhub-sitemap")?.scrollIntoView({ behavior: "smooth" })
               }
             >
-              View Sitemap
+              View Sitemap & Portals
             </button>
           </div>
         </motion.div>
@@ -144,6 +183,7 @@ const Home = () => {
         </motion.div>
       </section>
 
+      {/* Categories Showcase */}
       <section id="fandom-categories" className="categories-section">
         <motion.div
           className="section-heading"
@@ -152,7 +192,7 @@ const Home = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span>EXPLORE</span>
+          <span>EXPLORE UNIVERSES</span>
 
           <h2>
             Find Your <strong>Fandom</strong>
@@ -163,9 +203,9 @@ const Home = () => {
           <div className={`db-status ${dbStatus === "connected" ? "online" : ""}`}>
             <span></span>
             {dbStatus === "checking"
-              ? "Connecting..."
+              ? "Connecting…"
               : dbStatus === "connected"
-              ? "Live Content"
+              ? "Live Content Connected"
               : "Offline Mode"}
           </div>
         </motion.div>
@@ -178,8 +218,8 @@ const Home = () => {
           viewport={{ once: true }}
         >
           {categories.map((cat) => {
-            const color = CATEGORY_COLORS[cat.name] || "#8b5cf6";
-            const glow = CATEGORY_GLOWS[cat.name] || "rgba(139, 92, 246, 0.45)";
+            const color = CATEGORY_COLORS[cat.name] || "#ec4899";
+            const glow = CATEGORY_GLOWS[cat.name] || "rgba(219, 39, 119, 0.45)";
             return (
               <motion.div
                 key={cat.name}
@@ -203,8 +243,7 @@ const Home = () => {
                 </div>
 
                 <h3>{cat.name}</h3>
-
-                <p>Explore {cat.name} content</p>
+                <p>Explore {cat.name} Universe & Drops</p>
 
                 <div className="card-arrow">
                   <FiArrowRight />
@@ -215,13 +254,14 @@ const Home = () => {
         </motion.div>
       </section>
 
+      {/* Sitemap & Portal Navigation */}
       <section
         id="fanhub-sitemap"
         style={{
           position: "relative",
           zIndex: 2,
           padding: "80px 24px 100px",
-          maxWidth: 1200,
+          maxWidth: 1240,
           margin: "0 auto",
         }}
       >
@@ -243,7 +283,7 @@ const Home = () => {
           >
             ARCHITECTURE & NAVIGATION
           </span>
-          <h2 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 900, margin: "10px 0" }}>
+          <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 900, margin: "10px 0" }}>
             Fan Hub Plus <span className="gradient-text">Sitemap</span>
           </h2>
           <p style={{ color: "var(--text-muted)", maxWidth: 650, margin: "0 auto", fontSize: 15 }}>
@@ -258,16 +298,24 @@ const Home = () => {
             gap: 24,
           }}
         >
-          <div className="sitemap-card">
+          {/* Card 1: Fandom Universes */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            whileHover={{ y: -6 }}
+            className="sitemap-card"
+          >
             <div className="sitemap-header">
-              <div className="sitemap-icon-badge" style={{ background: "rgba(139, 92, 246, 0.15)", color: "#8b5cf6" }}>
+              <div className="sitemap-icon-badge" style={{ background: "rgba(219, 39, 119, 0.15)", color: "var(--primary)" }}>
                 <FiLayers size={18} />
               </div>
               <h3>Fandom Universes</h3>
             </div>
             <ul className="sitemap-list">
               {CATEGORY_NAMES.map((cat) => {
-                const color = CATEGORY_COLORS[cat] || "#8b5cf6";
+                const color = CATEGORY_COLORS[cat] || "#ec4899";
                 return (
                   <li key={cat}>
                     <Link to={`/category/${encodeURIComponent(cat)}`} className="sitemap-link">
@@ -280,11 +328,19 @@ const Home = () => {
                 );
               })}
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="sitemap-card">
+          {/* Card 2: Discovery Hub */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            whileHover={{ y: -6 }}
+            className="sitemap-card"
+          >
             <div className="sitemap-header">
-              <div className="sitemap-icon-badge" style={{ background: "rgba(59, 130, 246, 0.15)", color: "#3b82f6" }}>
+              <div className="sitemap-icon-badge" style={{ background: "rgba(147, 51, 234, 0.15)", color: "#9333ea" }}>
                 <FiCompass size={18} />
               </div>
               <h3>Discovery Hub</h3>
@@ -313,9 +369,17 @@ const Home = () => {
                 );
               })}
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="sitemap-card">
+          {/* Card 3: Fan Portal */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            whileHover={{ y: -6 }}
+            className="sitemap-card"
+          >
             <div className="sitemap-header">
               <div className="sitemap-icon-badge" style={{ background: "rgba(236, 72, 153, 0.15)", color: "#ec4899" }}>
                 <FiHeart size={18} />
@@ -347,27 +411,36 @@ const Home = () => {
                 );
               })}
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="sitemap-card">
+          {/* Card 4: Admin & Services */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            whileHover={{ y: -6 }}
+            className="sitemap-card"
+          >
             <div className="sitemap-header">
-              <div className="sitemap-icon-badge" style={{ background: "rgba(34, 197, 94, 0.15)", color: "#22c55e" }}>
+              <div className="sitemap-icon-badge" style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981" }}>
                 <FiShield size={18} />
               </div>
               <h3>Admin & Services</h3>
             </div>
             <ul className="sitemap-list">
               {[
-                { to: "/admin", label: "Admin Dashboard Overview", icon: FiGrid, color: "#22c55e" },
+                { to: "/admin", label: "Admin Dashboard Overview", icon: FiGrid, color: "#10b981" },
+                { to: "/admin/merchandise", label: "Merchandise Management", icon: FiShoppingBag, color: "#ec4899" },
                 { to: "/admin/content", label: "Content Management", icon: FiLayers, color: "#06b6d4" },
                 { to: "/admin/multimedia", label: "Multimedia Management", icon: FiFilm, color: "#f59e0b" },
                 { to: "/admin/characters", label: "Character Management", icon: FiUsers, color: "#a855f7" },
                 { to: "/admin/articles", label: "Articles Management", icon: FiFeather, color: "#3b82f6" },
-                { to: "/admin/events", label: "Events & Calendar Management", icon: FiCalendar, color: "#f43f5e" },
+                { to: "/admin/events", label: "Events Management", icon: FiCalendar, color: "#f43f5e" },
                 { to: "/admin/submissions", label: "Fan Submissions Review", icon: FiShield, color: "#10b981" },
                 { to: "/admin/feedback", label: "Feedback & Bug Reports", icon: FiMessageSquare, color: "#ec4899" },
                 { to: "/admin/chatbot", label: "AI Chatbot Knowledge Base", icon: FiHelpCircle, color: "#8b5cf6" },
-                { to: "/admin/analytics", label: "System Analytics & Insights", icon: FiActivity, color: "#22c55e" },
+                { to: "/admin/analytics", label: "System Analytics", icon: FiActivity, color: "#10b981" },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
@@ -382,7 +455,7 @@ const Home = () => {
                 );
               })}
             </ul>
-          </div>
+          </motion.div>
         </div>
 
         <div
@@ -399,10 +472,13 @@ const Home = () => {
             color: "var(--text-muted)",
           }}
         >
-          <div>© Fan Hub Plus — Fandom Universe Portal for Fans</div>
+          <div>© Fan Hub Plus — The Ultimate Fandom Universe Portal</div>
           <div style={{ display: "flex", gap: 20 }}>
             <Link to="/explore" style={{ color: "inherit", textDecoration: "none" }}>
               Explore
+            </Link>
+            <Link to="/merchandise" style={{ color: "inherit", textDecoration: "none" }}>
+              Merchandise
             </Link>
             <Link to="/events" style={{ color: "inherit", textDecoration: "none" }}>
               Events Map

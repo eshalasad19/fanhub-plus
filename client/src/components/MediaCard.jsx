@@ -26,7 +26,14 @@ const MediaCard = ({ media }) => {
   const iframeSrc = isYouTube(media.url) ? toYouTubeEmbed(media.url) : isArchiveOrg(media.url) ? toArchiveEmbed(media.url) : null;
 
   return (
-    <motion.div whileHover={{ y: -6 }} className="card">
+    <motion.div
+      initial={{ opacity: 0, y: 35 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -6 }}
+      className="card"
+    >
       {!isAudio && iframeSrc ? (
         <div style={{ borderRadius: 12, overflow: "hidden", marginBottom: 12, aspectRatio: "16/9" }}>
           <iframe
